@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Meal Plan - {{ plan.week_start.strftime('%B %d, %Y') }} - AI Meal Planner{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>
+                <i class="bi bi-calendar-week me-2"></i>Week of {{ plan.week_start.strftime('%B %d, %Y') }}
+            </h1>
+            <p class="text-muted mb-0">Created {{ plan.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+        </div>
+        <div>
+            <a href="{{ url_for('meals.generate') }}" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-1"></i>New Plan
+            </a>
+            <a href="{{ url_for('meals.history') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-clock-history me-1"></i>History
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Meal Plan -->
+        <div class="col-lg-8 mb-4">
+            {% for day_num in range(7) %}
+                <div class="card shadow-sm mb-3">
+                    <div class="card-header day-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-calendar-day me-2"></i>{{ days[day_num] }}
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if organized_meals[day_num] %}
+                            {% for meal in organized_meals[day_num] %}
+                                <div class="meal-card card mb-3">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <span class="badge bg-secondary mb-2">{{ meal.meal_type|capitalize }}</span>
+                                                <h6 class="card-title mb-1">{{ meal.name }}</h6>
+                                                <p class="card-text text-muted small mb-2">{{ meal.description }}</p>
+                                            </div>
+                                            <div class="text-end">
+                                                {% if meal.prep_time or meal.cook_time %}
+                                                    <small class="text-muted">
+                                                        <i class="bi bi-clock me-1"></i>
+                                                        {{ (meal.prep_time or 0) + (meal.cook_time or 0) }} min
+                                                    </small>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <!-- Nutrition Info -->
+                                        <div class="d-flex gap-3 mb-2">
+                                            {% if meal.calories %}
+                                                <small class="text-muted">
+                                                    <strong>{{ meal.calories }}</strong> cal
+                                                </small>
+                                            {% endif %}
+                                            {% if meal.protein %}
+                                                <small class="text-muted">
+                                                    <strong>{{ meal.protein }}g</strong> protein
+                                                </small>
+                                            {% endif %}
+                                            {% if meal.carbs %}
+                                                <small class="text-muted">
+                                                    <strong>{{ meal.carbs }}g</strong> carbs
+                                                </small>
+                                            {% endif %}
+                                            {% if meal.fat %}
+                                                <small class="text-muted">
+                                                    <strong>{{ meal.fat }}g</strong> fat
+                                                </small>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Collapsible Details -->
+                                        <div class="collapse" id="meal-{{ day_num }}-{{ loop.index }}">
+                                            {% if meal.ingredients %}
+                                                <hr>
+                                                <h6 class="small"><i class="bi bi-basket me-1"></i>Ingredients:</h6>
+                                                <ul class="small mb-2">
+                                                    {% for ingredient in meal.ingredients %}
+                                                        <li>{{ ingredient }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% endif %}
+                                            {% if meal.instructions %}
+                                                <h6 class="small"><i class="bi bi-list-ol me-1"></i>Instructions:</h6>
+                                                <p class="small mb-0">{{ meal.instructions }}</p>
+                                            {% endif %}
+                                        </div>
+
+                                        <button class="btn btn-sm btn-outline-primary mt-2" type="button" 
+                                                data-bs-toggle="collapse" data-bs-target="#meal-{{ day_num }}-{{ loop.index }}">
+                                            <i class="bi bi-chevron-down me-1"></i>View Recipe
+                                        </button>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted mb-0">No meals planned for this day.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Shopping List -->
+            <div class="card shadow-sm mb-4 sticky-top" style="top: 20px;">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-cart-check me-2"></i>Shopping List
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if shopping_list %}
+                        {% for category, items in shopping_list.items() %}
+                            {% if items %}
+                                <h6 class="text-capitalize">{{ category }}</h6>
+                                <ul class="list-unstyled mb-3">
+                                    {% for item in items %}
+                                        <li>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="item-{{ loop.index }}-{{ category }}">
+                                                <label class="form-check-label" for="item-{{ loop.index }}-{{ category }}">
+                                                    {{ item }}
+                                                </label>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted mb-0">Shopping list not available.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Tips -->
+            {% if tips %}
+                <div class="card shadow-sm">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-lightbulb me-2"></i>Tips
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="mb-0">
+                            {% for tip in tips %}
+                                <li class="mb-2">{{ tip }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
