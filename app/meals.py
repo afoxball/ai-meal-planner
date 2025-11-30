@@ -1,7 +1,7 @@
 import json
 import os
 from datetime import date, timedelta
-from flask import Blueprint, render_template, redirect, url_for, flash
+from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app import db
 from app.models import MealPreference, MealPlan, Meal
@@ -168,10 +168,6 @@ def preferences():
         return redirect(url_for('main.dashboard'))
 
     return render_template('meals/preferences.html', form=form)
-
-
-# Import request at the top
-from flask import request
 
 
 @meals_bp.route('/generate', methods=['GET', 'POST'])
