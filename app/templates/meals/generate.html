@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Generate Meal Plan - AI Meal Planner{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <div class="display-4 text-primary mb-3">
+                            <i class="bi bi-magic"></i>
+                        </div>
+                        <h2>Generate Your Meal Plan</h2>
+                        <p class="text-muted">
+                            Our AI will create a personalized 7-day meal plan based on your preferences.
+                        </p>
+                    </div>
+
+                    <form method="POST" novalidate id="generateForm">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-4">
+                            {{ form.additional_notes.label(class="form-label") }}
+                            {{ form.additional_notes(class="form-control", rows="4", placeholder="Any special requests for this week? e.g., 'Include more soups', 'Planning a dinner party on Saturday', 'Using up leftover chicken'") }}
+                            <div class="form-text">Optional: Add any special notes for this week's plan</div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                <i class="bi bi-stars me-2"></i>Generate Meal Plan
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-4" id="loadingMessage" style="display: none;">
+                        <div class="spinner-border text-primary mb-3" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="text-muted">
+                            <strong>Creating your personalized meal plan...</strong><br>
+                            This may take 30-60 seconds.
+                        </p>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="text-center">
+                        <p class="small text-muted mb-2">Your plan will include:</p>
+                        <span class="badge bg-primary me-1">7 Days of Meals</span>
+                        <span class="badge bg-success me-1">Recipes & Instructions</span>
+                        <span class="badge bg-info">Shopping List</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('generateForm').addEventListener('submit', function() {
+    document.getElementById('submitBtn').disabled = true;
+    document.getElementById('submitBtn').innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Generating...';
+    document.getElementById('loadingMessage').style.display = 'block';
+});
+</script>
+{% endblock %}

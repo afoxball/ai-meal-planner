@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Meal Plan History - AI Meal Planner{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>
+            <i class="bi bi-clock-history me-2"></i>Meal Plan History
+        </h1>
+        <a href="{{ url_for('meals.generate') }}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>New Plan
+        </a>
+    </div>
+
+    {% if plans %}
+        <div class="row g-4">
+            {% for plan in plans %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header day-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-calendar-week me-2"></i>{{ plan.week_start.strftime('%B %d, %Y') }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small mb-2">
+                                <i class="bi bi-clock me-1"></i>
+                                Created {{ plan.created_at.strftime('%B %d, %Y') }}
+                            </p>
+                            <p class="mb-3">
+                                <span class="badge bg-primary">{{ plan.meals|length }} meals</span>
+                            </p>
+                            <a href="{{ url_for('meals.view_plan', plan_id=plan.id) }}" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-eye me-1"></i>View Plan
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <div class="display-1 text-muted mb-4">
+                <i class="bi bi-calendar-x"></i>
+            </div>
+            <h3>No Meal Plans Yet</h3>
+            <p class="text-muted mb-4">
+                You haven't created any meal plans yet. Get started by generating your first plan!
+            </p>
+            <a href="{{ url_for('meals.generate') }}" class="btn btn-primary btn-lg">
+                <i class="bi bi-magic me-2"></i>Generate Your First Plan
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
